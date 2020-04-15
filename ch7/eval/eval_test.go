@@ -10,7 +10,7 @@ import (
 )
 
 //!+Eval
-func TestEval(t *testing.T) {
+func TestEvalClone(t *testing.T) {
 	tests := []struct {
 		expr string
 		env  Env

@@ -103,9 +103,24 @@ func plot(w http.ResponseWriter, r *http.Request) {
 
 //!-plot
 
+func printExpr(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	expr, err := parseAndCheck(r.Form.Get("expr"))
+	if err != nil {
+		http.Error(w, "bad expr: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	fmt.Fprintf(w, "parsed expression is %s\n", expr.String())
+
+	expr2, _ := parseAndCheck(expr.String())
+	fmt.Fprintf(w, "re-parsed expression is %s\n", expr2.String())
+}
+
 //!+main
 func main() {
 	http.HandleFunc("/plot", plot)
+	http.HandleFunc("/print", printExpr)
 	log.Fatal(http.ListenAndServe("localhost:8000", nil))
 }
 
