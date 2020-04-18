@@ -26,6 +26,10 @@ func TestEvalClone(t *testing.T) {
 		// additional tests that don't appear in the book
 		{"-1 + -x", Env{"x": 1}, "-2"},
 		{"-1 - x", Env{"x": 1}, "-2"},
+		{"min(x, y)", Env{"x": 3, "y": -2}, "-2"},
+		{"max(x, y)", Env{"x": 3, "y": -2}, "3"},
+		{"abs(x, y)", Env{"x": -1.45}, "1.45"},
+		{"cos(x)", Env{"x": 0}, "1"},
 		//!+Eval
 	}
 	var prevExpr string
