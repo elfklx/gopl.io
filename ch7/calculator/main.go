@@ -3,10 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 
+	"gopl.io/ch7/calculator/reader"
 	"gopl.io/ch7/eval"
 )
 
@@ -14,26 +14,19 @@ import (
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
+	r := reader.NewReader(scanner)
 
-	var exprTxt string
+	vars := map[eval.Var]bool{}
+	var expr eval.Expr
+	var err error
 	for {
-		fmt.Print("Enter expression:\n")
-		scanner.Scan()
-		exprTxt = scanner.Text()
-		if exprTxt != "" {
-			break
+		fmt.Print("Enter expression: ")
+		expr, err = r.ReadExpr(vars)
+		if err != nil {
+			fmt.Printf("[invalid input] reason: %s; try again\n", err)
+			continue
 		}
-		fmt.Print("empty expression; try again\n")
-	}
-
-	expr, err := eval.Parse(exprTxt)
-	if err != nil {
-		log.Fatalf("invalid expression %s", err)
-	}
-
-	vars := make(map[eval.Var]bool)
-	if err := expr.Check(vars); err != nil {
-		log.Fatalf("invalid errors %s", err)
+		break
 	}
 
 	env := make(eval.Env)
