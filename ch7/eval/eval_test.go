@@ -30,6 +30,7 @@ func TestEvalClone(t *testing.T) {
 		{"max(x, y)", Env{"x": 3, "y": -2}, "3"},
 		{"abs(x, y)", Env{"x": -1.45}, "1.45"},
 		{"cos(x)", Env{"x": 0}, "1"},
+		{"sqrt(cos(0)+3)", Env{}, "2"},
 		//!+Eval
 	}
 	var prevExpr string
