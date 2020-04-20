@@ -13,7 +13,7 @@ import (
 
 var _ = Describe("Reader", func() {
 
-	Context("ReadExpr given unexpected input", func() {
+	Context("ReadExpr", func() {
 		It("should error out if an empty string is provided", func() {
 			const src = ""
 			s := bufio.NewScanner(strings.NewReader(src))
@@ -49,19 +49,54 @@ var _ = Describe("Reader", func() {
 			Expect(expr).To(BeNil())
 		})
 
+		It("should return an expression with vars if a valid input is provided", func() {
+			const src = "(x + y)"
+			s := bufio.NewScanner(strings.NewReader(src))
+
+			reader := NewReader(s)
+			vars := map[eval.Var]bool{}
+			expr, err := reader.ReadExpr(vars)
+			Expect(err).To(Not(HaveOccurred()))
+			Expect(expr).To(Not(BeNil()))
+			Expect(expr.String()).To(Equal(src))
+			Expect(vars).To(HaveKeyWithValue(eval.Var("x"), true))
+			Expect(vars).To(HaveKeyWithValue(eval.Var("y"), true))
+		})
 	})
 
-	It("should return an expression with vars if a valid input is provided", func() {
-		const src = "(x + y)"
-		s := bufio.NewScanner(strings.NewReader(src))
+	Context("ReadVar", func() {
+		It("should return an error if the input is empty", func() {
+			const src = ""
+			s := bufio.NewScanner(strings.NewReader(src))
 
-		reader := NewReader(s)
-		vars := map[eval.Var]bool{}
-		expr, err := reader.ReadExpr(vars)
-		Expect(err).To(Not(HaveOccurred()))
-		Expect(expr).To(Not(BeNil()))
-		Expect(expr.String()).To(Equal(src))
-		Expect(vars).To(HaveKeyWithValue(eval.Var("x"), true))
-		Expect(vars).To(HaveKeyWithValue(eval.Var("y"), true))
+			reader := NewReader(s)
+			_, err := reader.ReadVar()
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("empty input"))
+		})
+
+		It("should return an error if the input is not a number", func() {
+			const src = "a"
+			s := bufio.NewScanner(strings.NewReader(src))
+
+			reader := NewReader(s)
+			_, err := reader.ReadVar()
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("not a number"))
+		})
+
+		It("should return a number if the input is valid", func() {
+			const src = "1.32\n25"
+			s := bufio.NewScanner(strings.NewReader(src))
+
+			reader := NewReader(s)
+			val, err := reader.ReadVar()
+			Expect(err).To(Not(HaveOccurred()))
+			Expect(val).To(BeNumerically("~", 1.32, 0.01))
+
+			val, err = reader.ReadVar()
+			Expect(err).To(Not(HaveOccurred()))
+			Expect(val).To(BeNumerically("~", 25, 0.01))
+		})
 	})
 })

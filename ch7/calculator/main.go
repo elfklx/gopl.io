@@ -22,27 +22,24 @@ func main() {
 	for {
 		fmt.Print("Enter expression: ")
 		expr, err = r.ReadExpr(vars)
-		if err != nil {
-			fmt.Printf("[invalid input] reason: %s; try again\n", err)
-			continue
+		if err == nil {
+			break
 		}
-		break
+		fmt.Printf("[invalid input] reason: %s; try again\n", err)
 	}
 
 	env := make(eval.Env)
 	for v := range vars {
 		for {
-			fmt.Printf("Enter value for %s:\n", v)
-			scanner.Scan()
-			valueStr := scanner.Text()
-			value, err := strconv.ParseFloat(valueStr, 32)
+			fmt.Printf("Enter value for %s: ", v)
+			val, err := r.ReadVar()
 			if err == nil {
-				env[v] = value
+				env[v] = val
 				break
 			}
-			fmt.Printf("invalid value %s must be float; try again\n", valueStr)
+			fmt.Println("[invalid input] not a number; try again")
 		}
 	}
 
-	fmt.Printf("Result:\n%f", expr.Eval(env))
+	fmt.Printf("Result: %s", strconv.FormatFloat(expr.Eval(env), 'f', -1, 64))
 }

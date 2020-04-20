@@ -3,6 +3,7 @@ package reader
 import (
 	"bufio"
 	"errors"
+	"strconv"
 
 	"fmt"
 
@@ -35,6 +36,17 @@ func (e Reader) ReadExpr(vars map[eval.Var]bool) (eval.Expr, error) {
 	return expr, nil
 }
 
-func (e Reader) ReadVar(env eval.Env) error {
-	return nil
+func (e Reader) ReadVar() (float64, error) {
+	e.scanner.Scan()
+	text := e.scanner.Text()
+	if text == "" {
+		return 0, errors.New("empty input")
+	}
+
+	val, err := strconv.ParseFloat(text, 64)
+	if err != nil {
+		return 0, fmt.Errorf("not a number: %s", err)
+	}
+
+	return val, nil
 }
